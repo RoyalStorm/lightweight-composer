@@ -18,7 +18,7 @@ from tensorflow.keras.utils import plot_model
 from tensorflow.python.keras.callbacks import TensorBoard
 
 
-def dump_dataset():
+def dump_dataset(dump_name):
     """ Get all the notes and chords from the midi files in the ./midi_songs directory """
     notes = []
 
@@ -41,14 +41,14 @@ def dump_dataset():
             elif isinstance(element, chord.Chord):
                 notes.append('.'.join(str(n) for n in element.normalOrder))
 
-    with open('../dump/magenta_ds_dump.notes', 'wb') as filepath:
+    with open(f'../dumps/{dump_name}', 'wb') as filepath:
         pickle.dump(notes, filepath)
 
     return notes
 
 
-def load_dataset():
-    with open('../dump/notes', 'rb') as filepath:
+def load_dataset(dump_name):
+    with open(f'../dumps/{dump_name}', 'rb') as filepath:
         return pickle.load(filepath)
 
 
@@ -160,7 +160,8 @@ def generate_notes(model, input, pitch_names, latent_dim, generated_notes_number
 
 
 def generate_sample_name(min_chars: int = 6, max_chars: int = 10):
-    return os.path.join('./samples', ''.join(rnd.choices(string.ascii_lowercase, k=rnd.randint(min_chars, max_chars))) + '.mid')
+    return os.path.join('./samples',
+                        ''.join(rnd.choices(string.ascii_lowercase, k=rnd.randint(min_chars, max_chars))) + '.mid')
 
 
 def convert_to_midi(prediction_output):
@@ -198,26 +199,26 @@ def convert_to_midi(prediction_output):
 
 
 if __name__ == '__main__':
-    # First of all, we need to prepare dataset and dump it on disk, only one time!
-    notes = dump_dataset()
+    # First of all, we need to prepare dataset and dumps it on disk, only one time!
+    # notes = dump_dataset('magenta_ds_dump.notes')
 
     # Or, if dataset already created
-    """notes = load_dataset()
+    notes = load_dataset('kaggle_ds_dump.notes')
     pitch_names = sorted(set(item for item in notes))
     latent_dim = len(set(notes))
-    x, x_normalized, y = prepare_sequences(notes, pitch_names, latent_dim)"""
+    x, x_normalized, y = prepare_sequences(notes, pitch_names, latent_dim)
 
     # Build model
-    # model = build_net(x_normalized, latent_dim)
+    model = build_net(x_normalized, latent_dim)
 
     # You can plot model architecture
     # plot_model_architecture(model)
 
     # If you want contain training from current weights
-    # model.load_weights('./best/best.h5')
+    model.load_weights('./best/best.h5')
 
     # Train model
-    # train(model, x_normalized, y, epochs=4500, batch_size=128, save_period=250)
+    train(model, x_normalized, y, epochs=4500, batch_size=128, save_period=250)
 
     # And finally generate sample
     # raw_notes = generate_notes(model, x, pitch_names, latent_dim, generated_notes_number=500)

@@ -1,4 +1,6 @@
 music21
-Keras
-Tensorflow
-Tensorboard
+numpy
+keras==2.3.1
+tensorflow==1.15.3
+tensorflow-gpu==1.15.3
+tensorboard==1.15.0

@@ -4,6 +4,11 @@
 
 This project allows you to train a neural network to generate midi music files that make use of a single instrument.
 
+## Model architecture
+<div style="text-align:center">
+    <img src="./assets/model_architecture.png"  alt="Model architecture"/>
+</div>
+
 ## Usage
 
 #### Training
@@ -17,7 +22,7 @@ This project allows you to train a neural network to generate midi music files t
 1. Directory `best` contains best weights
 2. Directory `samples` contains generated music
 3. Directory `weigths` contains all checkpoints in format `model-{epoch}-{loss}.h5`
-4. Directory `dump` contains converted training midi song in 1 file
+4. Directory `dumps` contains converted training midi song in 1 file
 
 #### Sample
 
@@ -26,7 +31,7 @@ This project allows you to train a neural network to generate midi music files t
 # notes = dump_dataset()
 
 # Or, if dataset already created
-notes = load_dataset()
+notes = load_dataset('kaggle_ds_dump.notes')
 pitch_names = sorted(set(item for item in notes))
 latent_dim = len(set(notes))
 x, x_normalized, y = prepare_sequences(notes, pitch_names, latent_dim)
