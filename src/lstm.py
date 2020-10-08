@@ -1,12 +1,10 @@
-import glob
 import os
-import pickle
 import random as rnd
 import string
 
 import numpy
 from keras.utils import np_utils
-from music21 import converter, instrument, note, chord, stream
+from music21 import instrument, note, chord, stream
 from tensorflow.keras.callbacks import ModelCheckpoint
 from tensorflow.keras.layers import Activation
 from tensorflow.keras.layers import BatchNormalization as BatchNorm
@@ -17,39 +15,7 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.utils import plot_model
 from tensorflow.python.keras.callbacks import TensorBoard
 
-
-def dump_dataset(dump_name):
-    """ Get all the notes and chords from the midi files in the ./midi_songs directory """
-    notes = []
-
-    for file in glob.glob("../midi_songs/*.midi"):
-        midi = converter.parse(file)
-
-        print(f"Parsing {file}")
-
-        notes_to_parse = None
-
-        try:  # file has instrument parts
-            s2 = instrument.partitionByInstrument(midi)
-            notes_to_parse = s2.parts[0].recurse()
-        except:  # file has notes in a flat structure
-            notes_to_parse = midi.flat.notes
-
-        for element in notes_to_parse:
-            if isinstance(element, note.Note):
-                notes.append(str(element.pitch))
-            elif isinstance(element, chord.Chord):
-                notes.append('.'.join(str(n) for n in element.normalOrder))
-
-    with open(f'../dumps/{dump_name}', 'wb') as filepath:
-        pickle.dump(notes, filepath)
-
-    return notes
-
-
-def load_dataset(dump_name):
-    with open(f'../dumps/{dump_name}', 'rb') as filepath:
-        return pickle.load(filepath)
+from ds_utils import load_dataset
 
 
 def prepare_sequences(notes, pitch_names, latent_dim):
@@ -200,7 +166,7 @@ def convert_to_midi(prediction_output):
 
 if __name__ == '__main__':
     # First of all, we need to prepare dataset and dumps it on disk, only one time!
-    # notes = dump_dataset('magenta_ds_dump.notes')
+    # notes = dump_dataset('kaggle_ds_dump.notes')
 
     # Or, if dataset already created
     notes = load_dataset('kaggle_ds_dump.notes')
@@ -211,15 +177,12 @@ if __name__ == '__main__':
     # Build model
     model = build_net(x_normalized, latent_dim)
 
-    # You can plot model architecture
-    # plot_model_architecture(model)
-
     # If you want contain training from current weights
     model.load_weights('./best/best.h5')
 
     # Train model
-    train(model, x_normalized, y, epochs=4500, batch_size=128, save_period=250)
+    # train(model, x_normalized, y, epochs=4500, batch_size=128, save_period=250)
 
     # And finally generate sample
-    # raw_notes = generate_notes(model, x, pitch_names, latent_dim, generated_notes_number=500)
-    # convert_to_midi(raw_notes)
+    raw_notes = generate_notes(model, x, pitch_names, latent_dim, generated_notes_number=500)
+    convert_to_midi(raw_notes)
