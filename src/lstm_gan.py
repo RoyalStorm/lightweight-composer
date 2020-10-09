@@ -39,7 +39,7 @@ class ComposerGAN:
         # The discriminator takes generated images as input and determines validity
         validity = self.discriminator(generated_seq)
 
-        # The combined model  (stacked generator and discriminator)
+        # The combined model (stacked generator and discriminator)
         # Trains the generator to fool the discriminator
         self.combined = Model(z, validity)
         self.combined.compile(loss='binary_crossentropy', optimizer=optimizer)
@@ -85,4 +85,5 @@ class ComposerGAN:
 
 
 if __name__ == '__main__':
-    pass
+    composer_gan = ComposerGAN()
+    composer_gan.train(epochs=15_000, batch_size=128, save_period=100)
