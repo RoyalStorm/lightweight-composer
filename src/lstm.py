@@ -101,8 +101,8 @@ if __name__ == '__main__':
 
     # Or, if dataset already created
     notes = load_dataset('kaggle_ds_dump.notes')
-    pitch_names = sorted(set(item for item in notes))
     latent_dim = len(set(notes))
+    pitch_names = sorted(set(item for item in notes))
     x, x_normalized, y = prepare_sequences(notes, pitch_names, latent_dim)
 
     # Build model
