@@ -116,4 +116,4 @@ if __name__ == '__main__':
 
     # And finally generate sample
     raw_notes = generate_notes(model, x, pitch_names, latent_dim, generated_notes_number=500)
-    convert_to_midi(raw_notes)
+    convert_to_midi('lstm_samples', raw_notes)

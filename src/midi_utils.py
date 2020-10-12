@@ -32,12 +32,12 @@ def generate_notes(model, input, pitch_names, latent_dim, generated_notes_number
     return prediction_output
 
 
-def generate_midi_name(min_chars: int = 6, max_chars: int = 10):
-    return os.path.join('./samples',
+def generate_midi_name(dir, min_chars: int = 6, max_chars: int = 10):
+    return os.path.join(f'./{dir}',
                         ''.join(rnd.choices(string.ascii_lowercase, k=rnd.randint(min_chars, max_chars))) + '.mid')
 
 
-def convert_to_midi(prediction_output):
+def convert_to_midi(dir, prediction_output):
     """ Convert the output from the prediction to notes and create a midi file
         from the notes """
     offset = 0
@@ -68,4 +68,4 @@ def convert_to_midi(prediction_output):
 
     midi_stream = stream.Stream(output_notes)
 
-    midi_stream.write('midi', fp=generate_midi_name(6, 10))
+    midi_stream.write('midi', fp=generate_midi_name(dir, 6, 10))

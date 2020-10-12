@@ -145,7 +145,7 @@ class ComposerGAN:
             #  Training the Generator
             noise = np.random.normal(0, 1, (batch_size, self.latent_dim))
 
-            # Train the generator (to have the discriminator label samples as real)
+            # Train the generator (to have the discriminator label lstm_samples as real)
             g_loss = self.combined.train_on_batch(noise, real)
 
             # Print the progress and save into loss lists
@@ -158,20 +158,21 @@ class ComposerGAN:
         self.generator.save(f'./weights/gen-{epochs}.h5')
         self.plot_loss()
 
-    def generate(self, input_notes):
-        # Get pitch names and store in a dictionary
-        notes = input_notes
-        pitchnames = sorted(set(item for item in notes))
+    def generate(self):
+        self.generator.load_weights('./best/gen.h5')
+        self.discriminator.load_weights('./best/disc.h5')
+
+        pitchnames = sorted(set(item for item in self.notes))
         int_to_note = dict((number, note) for number, note in enumerate(pitchnames))
 
         # Use random noise to generate sequences
         noise = np.random.normal(0, 1, (1, self.latent_dim))
         predictions = self.generator.predict(noise)
 
-        pred_notes = [x * 242 + 242 for x in predictions[0]]
+        pred_notes = [x * self.latent_dim for x in predictions[0]]
         pred_notes = [int_to_note[int(x)] for x in pred_notes]
 
-        convert_to_midi(pred_notes)
+        convert_to_midi('gan_samples', pred_notes)
 
     def plot_loss(self):
         plt.plot(self.disc_loss, c='red')
@@ -186,4 +187,5 @@ class ComposerGAN:
 
 if __name__ == '__main__':
     composer_gan = ComposerGAN()
-    composer_gan.train(epochs=5_000, batch_size=256, save_period=100)
+    # composer_gan.train(epochs=5_000, batch_size=256, save_period=100)
+    composer_gan.generate()
