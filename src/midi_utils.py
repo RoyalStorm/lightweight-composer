@@ -3,7 +3,7 @@ import random as rnd
 import string
 
 import numpy
-from music21 import instrument, note, chord, stream
+from music21 import instrument, note, chord, stream, converter
 
 
 def generate_notes(model, input, pitch_names, latent_dim, generated_notes_number):
@@ -69,3 +69,13 @@ def convert_to_midi(dir, prediction_output):
     midi_stream = stream.Stream(output_notes)
 
     midi_stream.write('midi', fp=generate_midi_name(dir, 6, 10))
+
+
+def replace_instrument(filepath: str, instrument):
+    score = converter.parse(filepath)
+
+    for el in score.recurse():
+        if 'Instrument' in el.classes:
+            el.activeSite.replace(el, instrument)
+
+    score.write('midi', f'{filepath}_{instrument.__class__.__name__.lower()}')
